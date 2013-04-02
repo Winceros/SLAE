@@ -1,4 +1,4 @@
-fX = open("x_progonka.txt");
+fX = open("x_fastest_descent.txt");
 fMatrix = open("matrix.txt");
 
 x = [float(lineX) for lineX in fX.readlines()]
@@ -10,7 +10,7 @@ for row in fMatrix.readlines():
 	j = 0
 	[A,B] = row.split('=')		
 	for aj in A.split():		
-		print aj," ",x[i+j]
+		#print aj," ",x[i+j]
 		res += float(aj)*x[i+j]
 		j+=1		
 	print "calc = ",res,"; truly_ans = ",B	
