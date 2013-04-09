@@ -121,7 +121,7 @@ vector<double> getXbyProgonkaMethod() {
 	vector<double> a = v[0];
 	vector<double> b = v[1];
 	
-	x[n] = ( (f[n] - a[n]*b[n])/(b[n] + a[n]*alpha[n]) );
+	x[n] = ( (f[n] - a[n]*beta[n])/(b[n] + a[n]*alpha[n]) );
 
 	for( int i=n ; i>=2 ; i-- )
 		x[i-1] = alpha[i]*x[i] + beta[i];
@@ -198,7 +198,7 @@ public:
 
 vector<double> calcNeviazka(threeDiagMat &mat, vector<double> &x, vector<double> &f) {
 	vector<double> r(n+1);
-	r[1] = (mat(1,1)*x[1] + mat(2,1)*x[2]) - f[1];
+	r[1] = (mat(1,1)*x[1] + mat(1,2)*x[2]) - f[1];
 	for(int i = 2 ; i<=n-1 ; i++) {
 		double Ay_i = mat(i,i-1)*x[i-1] + mat(i,i)*x[i] + mat(i,i+1)*x[i+1];
 		r[i] = Ay_i - f[i];
@@ -211,7 +211,13 @@ vector<double> getXbyZeidel(double eps) {
 	threeDiagMat mat(getABC());
 	vector<double> f = get_f();
 
+#ifdef PRINT_X_ZEIDEL
+	FILE *f_x;
+	f_x = fopen("x_zeidel.txt","w");
+#endif
+
 	vector<double> x(n+1,0);
+	x = f;
 	vector<double> r = calcNeviazka(mat,x,f);
 	double max_r = max(r);
 	int count = 0;
@@ -228,14 +234,16 @@ vector<double> getXbyZeidel(double eps) {
 		r = calcNeviazka(mat,x,f);
 		max_r = max(r);
 		count++;
+#ifdef PRINT_X_ZEIDEL
+		fprintf(f_x,"%f\n",max_r);
+#endif
 	}
 
 #ifdef PRINT_X_ZEIDEL
-	FILE *f_x;
-	f_x = fopen("x_zeidel.txt","w");
 	for(vector<double>::iterator iter = x.begin()+1 ; iter!=x.end(); iter++)
 		fprintf(f_x,"%9f\n",*iter);	
 	fprintf(f_x,"%i\n",count);
+	fprintf(f_x,"%f\n",max_r);
 	fclose(f_x);
 #endif
 
@@ -270,6 +278,11 @@ vector<double> getXbyFastestDescent(double eps) {
 	threeDiagMat mat(getABC());
 	vector<double> f = get_f();
 
+#ifdef PRINT_X_FASTEST_DESCENT
+	FILE *f_x;
+	f_x = fopen("x_fastest_descent.txt","w");
+#endif
+
 	vector<double> x(n+1,0);
 	vector<double> r = calcNeviazka(mat,x,f);
 	double max_r = max(r);
@@ -279,14 +292,16 @@ vector<double> getXbyFastestDescent(double eps) {
 		r = calcNeviazka(mat,x,f);
 		max_r = max(r);
 		count++;
+#ifdef PRINT_X_FASTEST_DESCENT
+		fprintf(f_x,"%f\n",max_r);
+#endif
 	}
 
 #ifdef PRINT_X_FASTEST_DESCENT
-	FILE *f_x;
-	f_x = fopen("x_fastest_descent.txt","w");
 	for(vector<double>::iterator iter = x.begin()+1 ; iter!=x.end(); iter++)
 		fprintf(f_x,"%9f\n",*iter);	
-	fprintf(f_x,"%i\n",count);
+	fprintf(f_x,"%i\n",count);	
+	fprintf(f_x,"%f\n",max_r);
 	fclose(f_x);
 #endif
 
@@ -295,6 +310,8 @@ vector<double> getXbyFastestDescent(double eps) {
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	getXbyProgonkaMethod();
+	getXbyZeidel(h*h*h);
 	getXbyFastestDescent(h*h*h);
 	return 0;
 }
